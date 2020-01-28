@@ -31,9 +31,14 @@ function CheckParmeters ()
     }
     if ($path.Length -eq 0)
     {
+        Write-Host "Error: The input file is empty"
+        Write-Host
         PrintHelp
         exit
     }
+
+    $path = $path.Trim()
+
     if ((Test-Path $path) -eq $false)
     {
         Write-Host
@@ -48,7 +53,6 @@ function PrintHelp ()
     Write-Host "*******************************************************************"
     Write-Host "GetiOSMAMVersion"
     Write-Host "*******************************************************************"
-    Write-Host 
     Write-Host "Gathers the version of the Intune Wrapper used with the application"
     Write-Host 
     Write-Host "Parameters:"
@@ -75,7 +79,19 @@ Add-type -Path $PathDefaultZip | Out-Null
 $MAMVersionString = "IntuneMAMBuildBranch"
 
 $zipPath = $path
-$zipToOpen = [System.IO.Compression.ZipFile]::Open($zipPath, [System.IO.Compression.ZipArchiveMode]::Read)
+
+try
+{
+    $zipToOpen = [System.IO.Compression.ZipFile]::Open($zipPath, [System.IO.Compression.ZipArchiveMode]::Read)
+}
+catch [System.Management.Automation.RuntimeException]
+{
+    Write-Host
+    Write-Host "File or path is invalid" -ForegroundColor Red
+    Write-Host
+    PrintHelp
+    exit
+}
 
 $zippedInfoPlist = $ziptoopen.Entries | Where-Object FullName -CLike "*Frameworks/IntuneMAM.framework/Info.plist"
 $streamReader = [System.IO.Stream]$zippedInfoPlist.Open()
