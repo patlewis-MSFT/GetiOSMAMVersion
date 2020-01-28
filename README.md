@@ -11,18 +11,18 @@ Update: Version 1.0  1/24/2020
 
 ## Getting Started
 1. Download GetiOSMAMVersion.ps1 to your Windows 10 device
-1. Run .\GetiOSMAMVersion.ps1
+1. Run .\GetiOSMAMVersion.ps1 and point to your Intune Wrapped application
 
 Parameters:
    -path : The full path and name of the wrapped .ipa file
    -help : Displays usage and help
 
 Usage:
-   .\GetiOSMAMVersion.ps1 -path <path and filename>
-   .\GetiOSMAMVersion.ps1 -help
+   * .\GetiOSMAMVersion.ps1 -path [Path to .ipa]
+   * .\GetiOSMAMVersion.ps1 -help
 
 Example:
-   .\GetiOSMAMVersion.ps1 -path "C:\LOBApps\MyApp.ipa"
+   * .\GetiOSMAMVersion.ps1 -path "C:\LOBApps\MyApp.ipa"
 
 ## More information on the Intune Wrapping Tool
 * https://docs.microsoft.com/en-us/intune/developer/app-wrapper-prepare-ios
