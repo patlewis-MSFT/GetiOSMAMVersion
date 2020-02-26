@@ -93,30 +93,53 @@ catch [System.Management.Automation.RuntimeException]
     exit
 }
 
-$zippedInfoPlist = $ziptoopen.Entries | Where-Object FullName -CLike "*Frameworks/IntuneMAM.framework/Info.plist"
-$streamReader = [System.IO.Stream]$zippedInfoPlist.Open()
-
-$xmlReader = New-Object System.Xml.XmlDocument
-$xmlReader.Load($streamReader)
-
-$xmlNode = $xmlReader.DocumentElement.ChildNodes[0]
-$xmlNodes = $xmlNode.ChildNodes
 $WrapperFound = $false
 
-for ($index = 0; $index -lt $xmlNodes.Count; $index++)
+$zippedInfoPlist = $ziptoopen.Entries | Where-Object FullName -CLike "*Frameworks/IntuneMAM.framework/Info.plist"
+
+if ($null -eq $zippedInfoPlist)
 {
-    if ($xmlNodes[$index].'#text' -eq $MAMVersionString)
+    $zippedInfoPlist = $ziptoopen.Entries | Where-Object FullName -CLike "*Frameworks/IntuneMAMSwift.framework/Info.plist"
+    if ($null -eq $zippedInfoPlist)
     {
-        $BuildNumber = ($xmlNodes[$index + 1].'#text')
-        $BuildNumber = $BuildNumber.SubString($BuildNumber.LastIndexOf("/") + 1)
-        Write-Host "******************************************"
-        Write-Host "Using IntuneMAM Wrapper version: " $BuildNumber
-        Write-Host "******************************************"
-        $WrapperFound = $true
+        Write-Host "The .ipa has not been wrapped with the Intune Wrapper"
+        exit
     }
 }
 
-if ($WrapperFound -eq $false)
+$streamReader = [System.IO.Stream]$zippedInfoPlist.Open()
+$xmlReader = New-Object System.Xml.XmlDocument
+
+#The info.plist may be a binary property list instead of xml/text
+try 
 {
-    Write-Host "The .ipa has not been wrapped with the Intune Wrapper"
+    $xmlReader.Load($streamReader)
 }
+catch
+{
+    Write-Host "Unable to read Info.list"
+    Write-Host "The file could be in binary property list format which this utility does not support."
+    exit
+}
+
+    $xmlNode = $xmlReader.DocumentElement.ChildNodes[0]
+    $xmlNodes = $xmlNode.ChildNodes
+
+
+    for ($index = 0; $index -lt $xmlNodes.Count; $index++)
+    {
+        if ($xmlNodes[$index].'#text' -eq $MAMVersionString)
+        {
+            $BuildNumber = ($xmlNodes[$index + 1].'#text')
+            $BuildNumber = $BuildNumber.SubString($BuildNumber.LastIndexOf("/") + 1)
+            Write-Host "******************************************"
+            Write-Host "Using IntuneMAM Wrapper version: " $BuildNumber
+            Write-Host "******************************************"
+            $WrapperFound = $true
+        }
+    }
+
+    if ($WrapperFound -eq $false)
+    {
+        Write-Host "The .ipa has not been wrapped with the Intune Wrapper"
+    }
