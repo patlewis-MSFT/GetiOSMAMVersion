@@ -1,8 +1,9 @@
 # GetiOSMAMVersion
 Gets the version of the Intune App Wrapping Tool used with the application (.ipa)
+Does not support reading Info.plist in binary format
 
 Author: Patrick Lewis
-Update: Version 1.0  1/24/2020
+Update: Version 1.1 2/26/2020
 
 
 ## Prerequisites
